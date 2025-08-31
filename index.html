@@ -165,12 +165,17 @@
             if (item.subjectid === "2024/2025" || item.name === "2024/2025" || item.name === "Chybí") return;
             // Získání informací
             const den = item.date ? formatDen(item.date) : '';
-            const hodina = item.uniperiod || '';
+            let hodina = item.uniperiod || '';
+            if (item.durationperiods && Number(item.durationperiods) > 1 && item.uniperiod) {
+              const start = Number(item.uniperiod);
+              const end = start + Number(item.durationperiods) - 1;
+              hodina = `${start}–${end}`;
+            }
             const zacatek = item.starttime || '';
             const konec = item.endtime || '';
             const predmet = item.subject || item.subjectid || (item.name || '');
             const ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
-            const mistnost = item.classroom || ((item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : '');
+            const mistnost = item.classroom || ((item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : 'neuvedeno');
 
             // Zvýraznění aktuální hodiny
             let highlight = '';
