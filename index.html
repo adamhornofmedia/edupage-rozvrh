@@ -135,8 +135,15 @@
       document.getElementById('tyden-label').textContent = `${formatDate(monday)} - ${formatDate(sunday)}`;
     }
 
+
     async function nactiRozvrh() {
-      const url = `/api/rozvrh?week=${currentWeek}`;
+      // Vypočítat parametry pro backend
+      const [year, week] = currentWeek.split('-W');
+      const {monday, sunday} = getWeekDates(currentWeek);
+      const datefrom = monday.toISOString().slice(0,10);
+      const dateto = sunday.toISOString().slice(0,10);
+      const id = '-30'; // staticky pro 4.g
+      const url = `/api/rozvrh?year=${year}&datefrom=${datefrom}&dateto=${dateto}&id=${id}`;
       document.getElementById('loading').style.display = 'block';
       updateWeekLabel();
       try {
@@ -145,17 +152,25 @@
         const tbody = document.querySelector('#rozvrh tbody');
         tbody.innerHTML = '';
         document.getElementById('loading').style.display = 'none';
-        if (!data.rozvrh || data.rozvrh.length === 0) {
+        // Zpracování dat z API (pole ttitems)
+        const ttitems = data?.r?.ttitems || [];
+        if (ttitems.length === 0) {
           tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
         } else {
-          data.rozvrh.forEach(hodina => {
+          ttitems.forEach(item => {
+            // Získání informací
+            const den = item.date ? formatDen(item.date) : '';
+            const hodina = item.uniperiod || '';
+            const predmet = item.subjectid || (item.name || '');
+            const ucitel = (item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '';
+            const mistnost = (item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : '';
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td>${hodina.den}</td>
-              <td>${hodina.hodina}</td>
-              <td>${hodina.predmet}</td>
-              <td>${hodina.ucitel}</td>
-              <td>${hodina.mistnost}</td>
+              <td>${den}</td>
+              <td>${hodina}</td>
+              <td>${predmet}</td>
+              <td>${ucitel}</td>
+              <td>${mistnost}</td>
             `;
             tbody.appendChild(tr);
           });
@@ -166,6 +181,13 @@
         err.textContent = 'Chyba spojení se serverem';
         err.style.display = 'block';
       }
+    }
+
+    function formatDen(dateStr) {
+      // dateStr: '2025-09-01' => 'Po', 'Út', ...
+      const d = new Date(dateStr);
+      const days = ['Ne','Po','Út','St','Čt','Pá','So'];
+      return days[d.getDay()];
     }
 
     function changeWeek(offset) {
