@@ -1,6 +1,20 @@
 
+import fs from 'fs';
+import path from 'path';
+
 export default async function handler(req, res) {
   const fetch = (await import('node-fetch')).default;
+
+  // Načtení překladů z translate.json
+  let translations = {};
+  try {
+    const translatePath = path.join(process.cwd(), 'translate.json');
+    if (fs.existsSync(translatePath)) {
+      translations = JSON.parse(fs.readFileSync(translatePath, 'utf8'));
+    }
+  } catch (e) {
+    translations = {};
+  }
 
   // Získání parametrů z body (POST) nebo query (GET)
   const {
@@ -56,6 +70,24 @@ export default async function handler(req, res) {
       body
     });
     const data = await response.json();
+
+    // Funkce pro překlad ID na text
+    function translate(id) {
+      return translations[id] || id;
+    }
+
+    // Pokud data obsahují pole s rozvrhem, přelož ID na texty
+    if (data && Array.isArray(data.timetable)) {
+      data.timetable = data.timetable.map(item => {
+        return {
+          ...item,
+          subject: translate(item.subject),
+          teacher: translate(item.teacher),
+          classroom: translate(item.classroom)
+        };
+      });
+    }
+
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
