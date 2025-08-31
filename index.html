@@ -161,9 +161,10 @@
             // Získání informací
             const den = item.date ? formatDen(item.date) : '';
             const hodina = item.uniperiod || '';
-            const predmet = item.subjectid || (item.name || '');
-            const ucitel = (item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '';
-            const mistnost = (item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : '';
+            // Zobrazit přeložené názvy, pokud jsou k dispozici
+            const predmet = item.subject || item.subjectid || (item.name || '');
+            const ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
+            const mistnost = item.classroom || ((item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : '');
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${den}</td>
