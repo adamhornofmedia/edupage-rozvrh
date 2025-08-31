@@ -76,14 +76,14 @@ export default async function handler(req, res) {
       return translations[id] || id;
     }
 
-    // Pokud data obsahují pole s rozvrhem, přelož ID na texty
-    if (data && Array.isArray(data.timetable)) {
-      data.timetable = data.timetable.map(item => {
+    // Pokud data obsahují pole s rozvrhem (r.ttitems), přelož ID na texty
+    if (data && data.r && Array.isArray(data.r.ttitems)) {
+      data.r.ttitems = data.r.ttitems.map(item => {
         return {
           ...item,
-          subject: translate(item.subject),
-          teacher: translate(item.teacher),
-          classroom: translate(item.classroom)
+          subject: translate(item.subjectid),
+          teacher: Array.isArray(item.teacherids) && item.teacherids.length > 0 ? translate(item.teacherids[0]) : '',
+          classroom: Array.isArray(item.classroomids) && item.classroomids.length > 0 ? translate(item.classroomids[0]) : ''
         };
       });
     }
