@@ -1,13 +1,11 @@
 {
   // Předměty
-  "-79": "Matematika",
-  "-80": "Angličtina",
+  "-112": "Třídnická hodina",
+    "-113": "Počítačová grafika",
 
   // Učitelé
-  "-12": "Mgr. Nováková",
-  "-15": "Ing. Svoboda",
+  "-70": "Hlaváčková",
 
   // Učebny
-  "-101": "Učebna 101",
-  "-202": "Laboratoř"
+  "-96": "OU4"
 }
