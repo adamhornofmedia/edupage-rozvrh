@@ -155,7 +155,17 @@
         tbody.innerHTML = '';
         document.getElementById('loading').style.display = 'none';
         // Zpracování dat z API (pole ttitems)
-        const ttitems = data?.r?.ttitems || [];
+        let ttitems = data?.r?.ttitems || [];
+        // Seřadit podle data a čísla hodiny (uniperiod)
+        ttitems = ttitems.slice().sort((a, b) => {
+          // Porovnat datum
+          if (a.date < b.date) return -1;
+          if (a.date > b.date) return 1;
+          // Porovnat číslo hodiny (uniperiod), pokud existuje
+          const ua = Number(a.uniperiod) || 0;
+          const ub = Number(b.uniperiod) || 0;
+          return ua - ub;
+        });
         if (ttitems.length === 0) {
           tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
         } else {
