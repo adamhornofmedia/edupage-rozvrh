@@ -26,12 +26,15 @@ def api_rozvrh():
     else:
         dt = date.today()
     timetable = edupage.get_my_timetable(dt)
+    import logging
+    for l in timetable:
+        logging.info(f"Lesson attributes: {l.__dict__}")
     return jsonify([{
-    "predmet": l.subject,
-        "ucitel": l.teacher,
-        "ucebna": l.classroom,
-        "zacatek": l.start.strftime("%H:%M"),
-        "konec": l.end.strftime("%H:%M")
+        "predmet": getattr(l, "subject", None),
+        "ucitel": getattr(l, "teacher", None),
+        "ucebna": getattr(l, "classroom", None),
+        "zacatek": l.start.strftime("%H:%M") if hasattr(l, "start") else None,
+        "konec": l.end.strftime("%H:%M") if hasattr(l, "end") else None
     } for l in timetable])
 # API pro stálý rozvrh (nezávislý na datu)
 @app.route("/api/staly_rozvrh")
@@ -40,12 +43,15 @@ def api_staly_rozvrh():
     today = date.today()
     monday = today - timedelta(days=today.weekday())
     timetable = edupage.get_my_timetable(monday)
+    import logging
+    for l in timetable:
+        logging.info(f"Lesson attributes: {l.__dict__}")
     return jsonify([{
-    "predmet": l.subject,
-        "ucitel": l.teacher,
-        "ucebna": l.classroom,
-        "zacatek": l.start.strftime("%H:%M"),
-        "konec": l.end.strftime("%H:%M")
+        "predmet": getattr(l, "subject", None),
+        "ucitel": getattr(l, "teacher", None),
+        "ucebna": getattr(l, "classroom", None),
+        "zacatek": l.start.strftime("%H:%M") if hasattr(l, "start") else None,
+        "konec": l.end.strftime("%H:%M") if hasattr(l, "end") else None
     } for l in timetable])
 
 # frontend
