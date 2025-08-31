@@ -14,70 +14,122 @@
       flex-direction: column;
       align-items: center;
     }
-    <table id="rozvrh">
-      <thead>
-        <tr>
-          <th>Den</th>
-          <th>Hodina</th>
-          <th>Předmět</th>
-          <th>Učitel</th>
-          <th>Místnost</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <script>
-      async function nactiRozvrh() {
-        // Změň URL na svou Vercel doménu pokud je potřeba
-        const url = '/api/rozvrh';
-        try {
-          const resp = await fetch(url);
-          const data = await resp.json();
-          const tbody = document.querySelector('#rozvrh tbody');
-          tbody.innerHTML = '';
-          if (!data.rozvrh || data.rozvrh.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
-          } else {
-            data.rozvrh.forEach(hodina => {
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td>${hodina.den}</td>
-                <td>${hodina.hodina}</td>
-                <td>${hodina.predmet}</td>
-                <td>${hodina.ucitel}</td>
-                <td>${hodina.mistnost}</td>
-              `;
-              tbody.appendChild(tr);
-            });
-          }
-        } catch (e) {
-          const err = document.getElementById('error');
-          if (err) {
-            err.textContent = 'Chyba spojení se serverem';
-            err.style.display = 'block';
-          }
-        }
+    h1 {
+      text-align: center;
+      color: #0077cc;
+      margin-top: 40px;
+      font-size: 2.5em;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #b3c6e0;
+    }
+    table {
+      width: 100%;
+      max-width: 900px;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 30px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 32px #b3c6e0;
+      animation: fadeIn 0.7s;
+    }
+    th, td {
+      border: 1px solid #e0eafc;
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 1.15em;
+      transition: background 0.2s;
+    }
+    th {
+      background: #0077cc;
+      color: white;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border: none;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    tr:hover td {
+      background: #e0eafc;
+    }
+    .error {
+      color: #d8000c;
+      background: #ffd2d2;
+      border: 1px solid #d8000c;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: center;
+      font-size: 1.1em;
+      display: none;
+      box-shadow: 0 2px 8px #b3c6e0;
+    }
+    @media (max-width: 700px) {
+      table, th, td {
+        font-size: 0.95em;
+        padding: 8px 4px;
       }
-      document.addEventListener('DOMContentLoaded', nactiRozvrh);
-    </script>
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${tds[0].textContent.trim()}</td>
-              <td>${tds[1].textContent.trim()}</td>
-              <td>${tds[2].textContent.trim()}</td>
-              <td>${tds[3].textContent.trim()}</td>
-              <td>${tds[4].textContent.trim()}</td>
-            `;
-            tbody.appendChild(row);
-          }
-        });
-      } catch (e) {
-        document.getElementById('error').textContent = 'Chyba načítání rozvrhu.';
-        document.getElementById('error').style.display = 'block';
+      h1 {
+        font-size: 1.5em;
       }
     }
-    nactiRozvrh();
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Rozvrh třídy 4.g</h1>
+  <div id="error" class="error" style="display:none"></div>
+  <div id="loading" style="text-align:center; margin-top:30px; font-size:1.2em; color:#0077cc;">Načítám rozvrh...</div>
+  <table id="rozvrh">
+    <thead>
+      <tr>
+        <th>Den</th>
+        <th>Hodina</th>
+        <th>Předmět</th>
+        <th>Učitel</th>
+        <th>Místnost</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    async function nactiRozvrh() {
+      const url = '/api/rozvrh';
+      document.getElementById('loading').style.display = 'block';
+      try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        const tbody = document.querySelector('#rozvrh tbody');
+        tbody.innerHTML = '';
+        document.getElementById('loading').style.display = 'none';
+        if (!data.rozvrh || data.rozvrh.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
+        } else {
+          data.rozvrh.forEach(hodina => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${hodina.den}</td>
+              <td>${hodina.hodina}</td>
+              <td>${hodina.predmet}</td>
+              <td>${hodina.ucitel}</td>
+              <td>${hodina.mistnost}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        const err = document.getElementById('error');
+        err.textContent = 'Chyba spojení se serverem';
+        err.style.display = 'block';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', nactiRozvrh);
   </script>
 </body>
 </html>
