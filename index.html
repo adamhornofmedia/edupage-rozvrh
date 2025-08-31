@@ -83,6 +83,11 @@
 </head>
 <body>
   <h1>Rozvrh třídy 4.g</h1>
+  <div class="controls" style="margin-top:20px;">
+    <button id="btn-prev">← Předchozí týden</button>
+    <span id="tyden-label" style="font-size:1.1em; margin:0 12px; color:#0077cc;"></span>
+    <button id="btn-next">Další týden →</button>
+  </div>
   <div id="error" class="error" style="display:none"></div>
   <div id="loading" style="text-align:center; margin-top:30px; font-size:1.2em; color:#0077cc;">Načítám rozvrh...</div>
   <table id="rozvrh">
@@ -98,9 +103,42 @@
     <tbody></tbody>
   </table>
   <script>
+    let currentWeek = getCurrentWeek();
+
+    function getCurrentWeek() {
+      const now = new Date();
+      const onejan = new Date(now.getFullYear(),0,1);
+      const week = Math.ceil((((now - onejan) / 86400000) + onejan.getDay()+1)/7);
+      return `${now.getFullYear()}-W${week.toString().padStart(2,'0')}`;
+    }
+
+    function getWeekDates(weekStr) {
+      // weekStr: '2025-W32'
+      const [year, week] = weekStr.split('-W');
+      // Najdi pondělí daného týdne
+      const simpleMonday = new Date(year, 0, 1 + (parseInt(week) - 1) * 7);
+      // Posuň na pondělí
+      const dayOfWeek = simpleMonday.getDay();
+      const monday = new Date(simpleMonday);
+      if (dayOfWeek > 0) monday.setDate(monday.getDate() + (1 - dayOfWeek));
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      return {monday, sunday};
+    }
+
+    function formatDate(d) {
+      return `${d.getDate()}.${d.getMonth()+1}. ${d.getFullYear()}`;
+    }
+
+    function updateWeekLabel() {
+      const {monday, sunday} = getWeekDates(currentWeek);
+      document.getElementById('tyden-label').textContent = `${formatDate(monday)} - ${formatDate(sunday)}`;
+    }
+
     async function nactiRozvrh() {
-      const url = '/api/rozvrh';
+      const url = `/api/rozvrh?week=${currentWeek}`;
       document.getElementById('loading').style.display = 'block';
+      updateWeekLabel();
       try {
         const resp = await fetch(url);
         const data = await resp.json();
@@ -129,7 +167,27 @@
         err.style.display = 'block';
       }
     }
-    document.addEventListener('DOMContentLoaded', nactiRozvrh);
+
+    function changeWeek(offset) {
+      // offset: +1 = další týden, -1 = předchozí týden
+      let [year, week] = currentWeek.split('-W');
+      week = parseInt(week) + offset;
+      if (week < 1) {
+        year = parseInt(year) - 1;
+        week = 52;
+      } else if (week > 52) {
+        year = parseInt(year) + 1;
+        week = 1;
+      }
+      currentWeek = `${year}-W${week.toString().padStart(2,'0')}`;
+      nactiRozvrh();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-prev').onclick = () => changeWeek(-1);
+      document.getElementById('btn-next').onclick = () => changeWeek(1);
+      nactiRozvrh();
+    });
   </script>
 </body>
 </html>
