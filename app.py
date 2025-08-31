@@ -1,6 +1,7 @@
 import os
+from datetime import date
 from flask import Flask, jsonify, send_from_directory
-from edupage_api import Edupage, EduDate
+from edupage_api import Edupage  # EduDate odstraněn
 
 app = Flask(__name__, static_folder="static")
 
@@ -14,7 +15,7 @@ edupage.login(USERNAME, PASSWORD, SUBDOMAIN)
 
 @app.route("/api/rozvrh")
 def api_rozvrh():
-    today = EduDate.today()
+    today = date.today()  # nahrazuje EduDate.today()
     timetable = edupage.get_my_timetable(today)
     return jsonify([{
         "predmet": l.name,
