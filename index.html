@@ -93,11 +93,13 @@
   <table id="rozvrh">
     <thead>
       <tr>
-        <th>Den</th>
-        <th>Hodina</th>
-        <th>Předmět</th>
-        <th>Učitel</th>
-        <th>Místnost</th>
+  <th>Den</th>
+  <th>Hodina</th>
+  <th>Začátek</th>
+  <th>Konec</th>
+  <th>Předmět</th>
+  <th>Učitel</th>
+  <th>Místnost</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -157,22 +159,40 @@
         if (ttitems.length === 0) {
           tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
         } else {
+          const now = new Date();
           ttitems.forEach(item => {
+            // Ignorovat hodiny s subjectid "2024/2025" nebo name "Chybí"
+            if (item.subjectid === "2024/2025" || item.name === "Chybí") return;
             // Získání informací
             const den = item.date ? formatDen(item.date) : '';
             const hodina = item.uniperiod || '';
-            // Zobrazit přeložené názvy, pokud jsou k dispozici
+            const zacatek = item.starttime || '';
+            const konec = item.endtime || '';
             const predmet = item.subject || item.subjectid || (item.name || '');
             const ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
             const mistnost = item.classroom || ((item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : '');
+
+            // Zvýraznění aktuální hodiny
+            let highlight = '';
+            if (item.date && zacatek && konec) {
+              const start = new Date(item.date + 'T' + zacatek);
+              const end = new Date(item.date + 'T' + konec);
+              if (now >= start && now <= end) {
+                highlight = ' style="background:#ffe066;"';
+              }
+            }
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${den}</td>
               <td>${hodina}</td>
+              <td>${zacatek}</td>
+              <td>${konec}</td>
               <td>${predmet}</td>
               <td>${ucitel}</td>
               <td>${mistnost}</td>
             `;
+            if (highlight) tr.setAttribute('style', 'background:#ffe066;');
             tbody.appendChild(tr);
           });
         }
