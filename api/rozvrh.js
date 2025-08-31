@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
   const url = 'https://sspvc.edupage.org/timetable/view.php?week=2025-W36&student=-465';
