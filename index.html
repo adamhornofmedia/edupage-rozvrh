@@ -185,7 +185,14 @@
             const konec = item.endtime || '';
             const predmet = item.subject || item.subjectid || (item.name || '');
             const ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
-            const mistnost = item.classroom || ((item.classroomids && item.classroomids.length) ? item.classroomids.join(', ') : 'neuvedeno');
+            let mistnost = '';
+            if (item.classroom && item.classroom !== '') {
+              mistnost = item.classroom;
+            } else if (item.classroomids && item.classroomids.length) {
+              mistnost = item.classroomids.join(', ');
+            } else {
+              mistnost = (item.classroomids && item.classroomids.length === 0) ? 'neuvedeno' : '';
+            }
 
             // Zvýraznění aktuální hodiny
             let highlight = '';
