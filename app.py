@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, timedelta
 from flask import Flask, jsonify, send_from_directory, request
 from edupage_api import Edupage  # EduDate odstraněn
 
@@ -36,7 +36,10 @@ def api_rozvrh():
 # API pro stálý rozvrh (nezávislý na datu)
 @app.route("/api/staly_rozvrh")
 def api_staly_rozvrh():
-    timetable = edupage.get_my_timetable()
+    # Pondělí aktuálního týdne
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    timetable = edupage.get_my_timetable(monday)
     return jsonify([{
         "predmet": l.name,
         "ucitel": l.teacher,
