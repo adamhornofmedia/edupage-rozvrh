@@ -27,7 +27,7 @@ def api_rozvrh():
         dt = date.today()
     timetable = edupage.get_my_timetable(dt)
     return jsonify([{
-        "predmet": l.name,
+    "predmet": l.subject,
         "ucitel": l.teacher,
         "ucebna": l.classroom,
         "zacatek": l.start.strftime("%H:%M"),
@@ -41,7 +41,7 @@ def api_staly_rozvrh():
     monday = today - timedelta(days=today.weekday())
     timetable = edupage.get_my_timetable(monday)
     return jsonify([{
-        "predmet": l.name,
+    "predmet": l.subject,
         "ucitel": l.teacher,
         "ucebna": l.classroom,
         "zacatek": l.start.strftime("%H:%M"),
