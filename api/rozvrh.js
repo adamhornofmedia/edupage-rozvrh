@@ -71,9 +71,11 @@ export default async function handler(req, res) {
     });
     const data = await response.json();
 
-    // Funkce pro překlad ID na text
-    function translate(id) {
-      return translations[id] || id;
+    // Funkce pro překlad ID na text s prefixem
+    function translate(id, type) {
+      if (!id) return '';
+      const key = `${type}_${id}`;
+      return translations[key] || translations[id] || id;
     }
 
     // Pokud data obsahují pole s rozvrhem (r.ttitems), přelož ID na texty
@@ -81,9 +83,9 @@ export default async function handler(req, res) {
       data.r.ttitems = data.r.ttitems.map(item => {
         return {
           ...item,
-          subject: translate(item.subjectid),
-          teacher: Array.isArray(item.teacherids) && item.teacherids.length > 0 ? translate(item.teacherids[0]) : '',
-          classroom: Array.isArray(item.classroomids) && item.classroomids.length > 0 ? translate(item.classroomids[0]) : ''
+          subject: translate(item.subjectid, 'subject'),
+          teacher: Array.isArray(item.teacherids) && item.teacherids.length > 0 ? translate(item.teacherids[0], 'teacher') : '',
+          classroom: Array.isArray(item.classroomids) && item.classroomids.length > 0 ? translate(item.classroomids[0], 'classroom') : ''
         };
       });
     }

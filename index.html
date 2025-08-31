@@ -161,8 +161,8 @@
         } else {
           const now = new Date();
           ttitems.forEach(item => {
-            // Ignorovat hodiny s subjectid "2024/2025" nebo name "Chybí"
-            if (item.subjectid === "2024/2025" || item.name === "Chybí") return;
+            // Ignorovat hodiny kde subjectid nebo name je "2024/2025", nebo name je "Chybí"
+            if (item.subjectid === "2024/2025" || item.name === "2024/2025" || item.name === "Chybí") return;
             // Získání informací
             const den = item.date ? formatDen(item.date) : '';
             const hodina = item.uniperiod || '';
