@@ -1,3 +1,0 @@
-Flask
-edupage-api
-gunicorn

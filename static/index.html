@@ -2,219 +2,82 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Rozvrh</title>
+  <title>Rozvrh 4.g SSPVC</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
       background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    h1 {
-      text-align: center;
-      margin-top: 40px;
-      color: #0077cc;
-      letter-spacing: 2px;
-      font-size: 2.5em;
-      text-shadow: 0 2px 8px #b3c6e0;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin: 30px 0 10px 0;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .controls input[type="date"] {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #0077cc;
-      font-size: 1em;
-    }
-    .controls button {
-      background: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 18px;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.2s;
-      box-shadow: 0 2px 8px #b3c6e0;
-    }
-    .controls button:hover {
-      background: #005fa3;
-    }
-    table {
-      width: 100%;
-      max-width: 800px;
-      border-collapse: collapse;
-      margin-top: 10px;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 24px #b3c6e0;
-      animation: fadeIn 0.7s;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
-      font-size: 1.1em;
-    }
-    th {
-      background: #0077cc;
-      color: white;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-    @media (max-width: 600px) {
-      table, th, td {
-        font-size: 0.9em;
-        padding: 7px;
-      }
-      .controls {
-        flex-direction: column;
-        gap: 7px;
-      }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .error {
-      color: #d8000c;
-      background: #ffd2d2;
-      border: 1px solid #d8000c;
-      border-radius: 6px;
-      padding: 10px;
-      margin: 10px auto;
-      max-width: 400px;
-      text-align: center;
-      font-size: 1em;
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Můj rozvrh</h1>
-  <div class="controls">
-    <button onclick="zobrazDnes()">Dnes</button>
-    <button onclick="zobrazStaly()">Stálý rozvrh</button>
-    <input type="date" id="datum" />
-    <button onclick="zobrazDatum()">Zobraz podle data</button>
-    <button onclick="zobrazPredchoziTyden()">← Předchozí týden</button>
-    <button onclick="zobrazDalsiTyden()">Další týden →</button>
-  </div>
-  <div class="error" id="error"></div>
-  <table id="rozvrh">
-    <thead>
-      <tr>
-        <th>Předmět</th>
-        <th>Učitel</th>
-        <th>Učebna</th>
-        <th>Začátek</th>
-        <th>Konec</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <table id="rozvrh">
+      <thead>
+        <tr>
+          <th>Den</th>
+          <th>Hodina</th>
+          <th>Předmět</th>
+          <th>Učitel</th>
+          <th>Místnost</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-  <script>
-    let aktualniDatum = new Date();
-    let rezimStaly = false;
-
-    function formatDate(d) {
-      return d.toISOString().slice(0, 10);
-    }
-
-    function showError(msg) {
-      const err = document.getElementById('error');
-      err.textContent = msg;
-      err.style.display = 'block';
-      setTimeout(() => err.style.display = 'none', 3500);
-    }
-
-    async function nactiRozvrh(datum = null, staly = false) {
-      let url = staly ? '/api/staly_rozvrh' : '/api/rozvrh';
-      if (datum && !staly) url += `?date=${datum}`;
-      try {
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (resp.status !== 200) {
-          showError(data.error || 'Chyba načítání rozvrhu');
-          return;
+    <script>
+      async function nactiRozvrh() {
+        // Změň URL na svou Vercel doménu pokud je potřeba
+        const url = '/api/rozvrh';
+        try {
+          const resp = await fetch(url);
+          const data = await resp.json();
+          const tbody = document.querySelector('#rozvrh tbody');
+          tbody.innerHTML = '';
+          if (!data.rozvrh || data.rozvrh.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
+          } else {
+            data.rozvrh.forEach(hodina => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${hodina.den}</td>
+                <td>${hodina.hodina}</td>
+                <td>${hodina.predmet}</td>
+                <td>${hodina.ucitel}</td>
+                <td>${hodina.mistnost}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+        } catch (e) {
+          const err = document.getElementById('error');
+          if (err) {
+            err.textContent = 'Chyba spojení se serverem';
+            err.style.display = 'block';
+          }
         }
-        const tbody = document.querySelector('#rozvrh tbody');
-        tbody.innerHTML = '';
-        if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
-        } else {
-          data.forEach(hodina => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${hodina.predmet}</td>
-              <td>${hodina.ucitel}</td>
-              <td>${hodina.ucebna}</td>
-              <td>${hodina.zacatek}</td>
-              <td>${hodina.konec}</td>
+      }
+      document.addEventListener('DOMContentLoaded', nactiRozvrh);
+    </script>
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${tds[0].textContent.trim()}</td>
+              <td>${tds[1].textContent.trim()}</td>
+              <td>${tds[2].textContent.trim()}</td>
+              <td>${tds[3].textContent.trim()}</td>
+              <td>${tds[4].textContent.trim()}</td>
             `;
-            tbody.appendChild(tr);
-          });
-        }
+            tbody.appendChild(row);
+          }
+        });
       } catch (e) {
-        showError('Chyba spojení se serverem');
+        document.getElementById('error').textContent = 'Chyba načítání rozvrhu.';
+        document.getElementById('error').style.display = 'block';
       }
     }
-
-    function zobrazDnes() {
-      rezimStaly = false;
-      aktualniDatum = new Date();
-      document.getElementById('datum').value = formatDate(aktualniDatum);
-      nactiRozvrh(formatDate(aktualniDatum));
-    }
-
-    function zobrazStaly() {
-      rezimStaly = true;
-      nactiRozvrh(null, true);
-    }
-
-    function zobrazDatum() {
-      rezimStaly = false;
-      const val = document.getElementById('datum').value;
-      if (!val) {
-        showError('Vyberte datum!');
-        return;
-      }
-      aktualniDatum = new Date(val);
-      nactiRozvrh(val);
-    }
-
-    function zobrazPredchoziTyden() {
-      rezimStaly = false;
-      aktualniDatum.setDate(aktualniDatum.getDate() - 7);
-      document.getElementById('datum').value = formatDate(aktualniDatum);
-      nactiRozvrh(formatDate(aktualniDatum));
-    }
-
-    function zobrazDalsiTyden() {
-      rezimStaly = false;
-      aktualniDatum.setDate(aktualniDatum.getDate() + 7);
-      document.getElementById('datum').value = formatDate(aktualniDatum);
-      nactiRozvrh(formatDate(aktualniDatum));
-    }
-
-    // Inicializace
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('datum').value = formatDate(aktualniDatum);
-      zobrazDnes();
-    });
+    nactiRozvrh();
   </script>
 </body>
 </html>
