@@ -3,55 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <title>Rozvrh 4.g SSPVC</title>
+  <meta name="theme-color" content="#222" />
+  <link rel="manifest" href="/manifest.json">
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+      background: #181c20;
+      color: #e0eafc;
       margin: 0;
       padding: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: background 0.3s, color 0.3s;
     }
     h1 {
       text-align: center;
-      color: #0077cc;
+      color: #00bfff;
       margin-top: 40px;
       font-size: 2.5em;
       letter-spacing: 2px;
-      text-shadow: 0 2px 8px #b3c6e0;
+      text-shadow: 0 2px 8px #222;
     }
     table {
       width: 100%;
       max-width: 900px;
       border-collapse: collapse;
-      background: white;
+      background: #23272b;
       margin-top: 30px;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 6px 32px #b3c6e0;
+      box-shadow: 0 6px 32px #222;
       animation: fadeIn 0.7s;
     }
     th, td {
-      border: 1px solid #e0eafc;
+      border: 1px solid #333;
       padding: 14px 10px;
       text-align: center;
       font-size: 1.15em;
       transition: background 0.2s;
     }
     th {
-      background: #0077cc;
-      color: white;
+      background: #00bfff;
+      color: #181c20;
       font-weight: 600;
       letter-spacing: 1px;
       border: none;
     }
     tr:nth-child(even) {
-      background: #f9f9f9;
+      background: #202328;
     }
     tr:hover td {
-      background: #e0eafc;
+      background: #222c38;
     }
     .error {
       color: #d8000c;
@@ -64,7 +68,28 @@
       text-align: center;
       font-size: 1.1em;
       display: none;
-      box-shadow: 0 2px 8px #b3c6e0;
+      box-shadow: 0 2px 8px #222;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .mode-toggle {
+      background: #23272b;
+      color: #00bfff;
+      border: 1px solid #00bfff;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-left: 10px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .mode-toggle:hover {
+      background: #00bfff;
+      color: #23272b;
     }
     @media (max-width: 700px) {
       table, th, td {
@@ -83,10 +108,12 @@
 </head>
 <body>
   <h1>Rozvrh třídy 4.g</h1>
-  <div class="controls" style="margin-top:20px;">
+  <div class="controls">
     <button id="btn-prev">← Předchozí týden</button>
-    <span id="tyden-label" style="font-size:1.1em; margin:0 12px; color:#0077cc;"></span>
+    <span id="tyden-label" style="font-size:1.1em; margin:0 12px; color:#00bfff;"></span>
     <button id="btn-next">Další týden →</button>
+    <button id="btn-today" class="mode-toggle">Dnešek</button>
+    <button id="btn-week" class="mode-toggle" style="display:none">Celý týden</button>
   </div>
   <div id="error" class="error" style="display:none"></div>
   <div id="loading" style="text-align:center; margin-top:30px; font-size:1.2em; color:#0077cc;">Načítám rozvrh...</div>
@@ -138,6 +165,16 @@
     }
 
 
+    let mode = 'today';
+    function getTodayDate() {
+      const now = new Date();
+      // Pokud je po 18:00, zobrazit další den
+      if (now.getHours() >= 18) {
+        now.setDate(now.getDate() + 1);
+      }
+      return now.toISOString().slice(0,10);
+    }
+
     async function nactiRozvrh() {
       // Vypočítat parametry pro backend
       const [year, week] = currentWeek.split('-W');
@@ -154,26 +191,30 @@
         const tbody = document.querySelector('#rozvrh tbody');
         tbody.innerHTML = '';
         document.getElementById('loading').style.display = 'none';
-        // Zpracování dat z API (pole ttitems)
         let ttitems = data?.r?.ttitems || [];
         // Seřadit podle data a čísla hodiny (uniperiod)
         ttitems = ttitems.slice().sort((a, b) => {
-          // Porovnat datum
           if (a.date < b.date) return -1;
           if (a.date > b.date) return 1;
-          // Porovnat číslo hodiny (uniperiod), pokud existuje
           const ua = Number(a.uniperiod) || 0;
           const ub = Number(b.uniperiod) || 0;
           return ua - ub;
         });
-        if (ttitems.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5">Žádné hodiny</td></tr>`;
+
+        // Filtrování podle režimu
+        let filtered = ttitems.filter(item => {
+          if (item.subjectid === "2024/2025" || item.name === "2024/2025" || item.name === "Chybí") return false;
+          if (mode === 'today') {
+            return item.date === getTodayDate();
+          }
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7">Žádné hodiny</td></tr>`;
         } else {
           const now = new Date();
-          ttitems.forEach(item => {
-            // Ignorovat hodiny kde subjectid nebo name je "2024/2025", nebo name je "Chybí"
-            if (item.subjectid === "2024/2025" || item.name === "2024/2025" || item.name === "Chybí") return;
-            // Získání informací
+          filtered.forEach(item => {
             const den = item.date ? formatDen(item.date) : '';
             let hodina = item.uniperiod || '';
             if (item.durationperiods && Number(item.durationperiods) > 1 && item.uniperiod) {
@@ -199,8 +240,8 @@
             if (item.date && zacatek && konec) {
               const start = new Date(item.date + 'T' + zacatek);
               const end = new Date(item.date + 'T' + konec);
-              if (now >= start && now <= end) {
-                highlight = ' style="background:#ffe066;"';
+              if (now >= start && now <= end && item.date === getTodayDate()) {
+                highlight = ' style="background:#ffe066; color:#222;"';
               }
             }
 
@@ -214,7 +255,7 @@
               <td>${ucitel}</td>
               <td>${mistnost}</td>
             `;
-            if (highlight) tr.setAttribute('style', 'background:#ffe066;');
+            if (highlight) tr.setAttribute('style', 'background:#ffe066; color:#222;');
             tbody.appendChild(tr);
           });
         }
@@ -251,6 +292,22 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('btn-prev').onclick = () => changeWeek(-1);
       document.getElementById('btn-next').onclick = () => changeWeek(1);
+      document.getElementById('btn-today').onclick = () => {
+        mode = 'today';
+        document.getElementById('btn-today').style.display = 'none';
+        document.getElementById('btn-week').style.display = 'inline-block';
+        nactiRozvrh();
+      };
+      document.getElementById('btn-week').onclick = () => {
+        mode = 'week';
+        document.getElementById('btn-week').style.display = 'none';
+        document.getElementById('btn-today').style.display = 'inline-block';
+        nactiRozvrh();
+      };
+      // Defaultně režim dnešek
+      mode = 'today';
+      document.getElementById('btn-today').style.display = 'none';
+      document.getElementById('btn-week').style.display = 'inline-block';
       nactiRozvrh();
     });
   </script>
