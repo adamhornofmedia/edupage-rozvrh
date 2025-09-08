@@ -131,8 +131,30 @@
     </thead>
     <tbody></tbody>
   </table>
+  <div id="odpocet" style="margin:40px auto 0 auto; text-align:center; font-size:1.3em; color:#ff5555; font-weight:bold;"></div>
   <script>
     let currentWeek = getCurrentWeek();
+
+    // Odpočet smrti Jakuba Uždila do 9.9. 14:15
+    function updateOdpocet() {
+      const deadline = new Date('2025-09-09T14:15:00');
+      const now = new Date();
+      let diff = deadline - now;
+      if (diff <= 0) {
+        document.getElementById('odpocet').textContent = '💀 Čas vypršel! 💀';
+        return;
+      }
+      const d = Math.floor(diff / (1000*60*60*24));
+      diff -= d * 1000*60*60*24;
+      const h = Math.floor(diff / (1000*60*60));
+      diff -= h * 1000*60*60;
+      const m = Math.floor(diff / (1000*60));
+      diff -= m * 1000*60;
+      const s = Math.floor(diff / 1000);
+      document.getElementById('odpocet').textContent = `Odpočet smrti Jakuba Uždila: ${d}d ${h}h ${m}m ${s}s`;
+    }
+    setInterval(updateOdpocet, 1000);
+    updateOdpocet();
 
     function getCurrentWeek() {
       const now = new Date();
