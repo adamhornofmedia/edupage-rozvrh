@@ -153,8 +153,6 @@
       const s = Math.floor(diff / 1000);
       document.getElementById('odpocet').textContent = `Odpočet smrti Jakuba Uždila: ${d}d ${h}h ${m}m ${s}s`;
     }
-    setInterval(updateOdpocet, 1000);
-    updateOdpocet();
 
     function getCurrentWeek() {
       const now = new Date();
@@ -312,6 +310,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+  setInterval(updateOdpocet, 1000);
+  updateOdpocet();
       document.getElementById('btn-prev').onclick = () => changeWeek(-1);
       document.getElementById('btn-next').onclick = () => changeWeek(1);
       document.getElementById('btn-today').onclick = () => {
