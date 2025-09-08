@@ -132,16 +132,24 @@
     <tbody></tbody>
   </table>
   <div id="odpocet" style="margin:40px auto 0 auto; text-align:center; font-size:1.3em; color:#ff5555; font-weight:bold;"></div>
+  <div id="odpocet-detail" style="margin:10px auto 0 auto; text-align:center; font-size:1em; color:#ffaaaa;"></div>
+  <div id="odpocet-bar-wrap" style="width:340px; max-width:90vw; margin:18px auto 0 auto; height:22px; background:#333; border-radius:12px; overflow:hidden; display:flex; align-items:center;">
+    <div id="odpocet-bar" style="height:100%; background:#ff5555; width:0%; transition:width 0.5s;"></div>
+    <span style="margin-left:auto; margin-right:8px; font-size:1.3em;">🪦</span>
+  </div>
   <script>
     let currentWeek = getCurrentWeek();
 
     // Odpočet smrti Jakuba Uždila do 9.9. 14:15
     function updateOdpocet() {
       const deadline = new Date('2025-09-09T14:15:00');
+      const start = new Date('2025-09-07T00:00:00'); // počáteční čas pro progress bar (lze upravit)
       const now = new Date();
       let diff = deadline - now;
       if (diff <= 0) {
         document.getElementById('odpocet').textContent = '💀 Čas vypršel! 💀';
+        document.getElementById('odpocet-detail').textContent = '';
+        document.getElementById('odpocet-bar').style.width = '100%';
         return;
       }
       const d = Math.floor(diff / (1000*60*60*24));
@@ -151,7 +159,19 @@
       const m = Math.floor(diff / (1000*60));
       diff -= m * 1000*60;
       const s = Math.floor(diff / 1000);
-      document.getElementById('odpocet').textContent = `Odpočet smrti Jakuba Uždila: ${d}d ${h}h ${m}m ${s}s`;
+      document.getElementById('odpocet').textContent = `Odpočet smrti Jakuba Uždila: ${d} dní, ${h} hodin, ${m} minut, ${s} sekund`;
+      // Podrobný čas
+      const ms = deadline - now;
+      const totalSec = Math.floor(ms/1000);
+      const totalMin = Math.floor(totalSec/60);
+      const totalHour = Math.floor(totalMin/60);
+      const totalDay = Math.floor(totalHour/24);
+      document.getElementById('odpocet-detail').textContent = `Zbývá: ${totalDay} dní, ${totalHour%24} hodin, ${totalMin%60} minut, ${totalSec%60} sekund`;
+      // Progress bar
+      const total = deadline - start;
+      const gone = now - start;
+      let percent = Math.max(0, Math.min(100, (gone/total)*100));
+      document.getElementById('odpocet-bar').style.width = percent + '%';
     }
 
     function getCurrentWeek() {
