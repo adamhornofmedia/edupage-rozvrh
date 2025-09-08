@@ -161,12 +161,15 @@
       const s = Math.floor(diff / 1000);
       document.getElementById('odpocet').textContent = `Odpočet smrti Jakuba Uždila: ${d} dní, ${h} hodin, ${m} minut, ${s} sekund`;
       // Podrobný čas
-      const ms = deadline - now;
-      const totalSec = Math.floor(ms/1000);
-      const totalMin = Math.floor(totalSec/60);
-      const totalHour = Math.floor(totalMin/60);
-      const totalDay = Math.floor(totalHour/24);
-      document.getElementById('odpocet-detail').textContent = `Zbývá: ${totalDay} dní, ${totalHour%24} hodin, ${totalMin%60} minut, ${totalSec%60} sekund`;
+  const ms = deadline - now;
+  const totalSec = Math.floor(ms/1000);
+  const totalMin = Math.floor(totalSec/60);
+  const totalHour = Math.floor(totalMin/60);
+  const totalDay = Math.floor(totalHour/24);
+  const msRest = ms % 1000;
+  // Nanosekundy: vezmeme z performance.now() zbytek 1 000 000 (není přesné, ale pro efekt)
+  const ns = Math.floor((performance.now() % 1) * 1_000_000);
+  document.getElementById('odpocet-detail').textContent = `Zbývá: ${totalDay} dní, ${totalHour%24} hodin, ${totalMin%60} minut, ${totalSec%60} sekund, ${msRest.toString().padStart(3,'0')} ms, ${ns.toString().padStart(6,'0')} ns`;
       // Progress bar
       const total = deadline - start;
       const gone = now - start;
