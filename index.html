@@ -386,8 +386,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-  // Automaticky spustit gratulaci s konfetami po načtení stránky
-  setTimeout(spustOslavu, 400);
   setInterval(updateOdpocet, 1000);
   updateOdpocet();
       document.getElementById('btn-prev').onclick = () => changeWeek(-1);
@@ -408,7 +406,9 @@
       mode = 'today';
       document.getElementById('btn-today').style.display = 'none';
       document.getElementById('btn-week').style.display = 'inline-block';
-      nactiRozvrh();
+  nactiRozvrh();
+  // Automaticky spustit gratulaci s konfetami po načtení stránky až po načtení rozvrhu
+  setTimeout(spustOslavu, 400);
     });
   </script>
 </body>
