@@ -199,6 +199,8 @@
         setTimeout(() => grat.remove(), 4000);
       }
     }
+    // Automaticky spustit gratulaci s konfetami po načtení stránky (až po definici funkce)
+    setTimeout(spustOslavu, 400);
     // Skákací animace
     const style = document.createElement('style');
     style.textContent = `@keyframes skakani { 0%{transform:translate(-50%,-50%) scale(1);} 40%{transform:translate(-50%,-70%) scale(1.15);} 100%{transform:translate(-50%,-50%) scale(1);} }`;
