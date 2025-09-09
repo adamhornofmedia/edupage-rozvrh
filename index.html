@@ -146,12 +146,63 @@
       const start = new Date('2025-09-07T00:00:00'); // počáteční čas pro progress bar (lze upravit)
       const now = new Date();
       let diff = deadline - now;
+      const odpocetEl = document.getElementById('odpocet');
+      // Easter egg: dvojklik na odpočet spustí oslavu kdykoliv
+      if (!odpocetEl.hasAttribute('data-easter')) {
+        odpocetEl.setAttribute('data-easter','1');
+        odpocetEl.addEventListener('dblclick', spustOslavu);
+        odpocetEl.style.cursor = 'pointer';
+      }
       if (diff <= 0) {
-        document.getElementById('odpocet').textContent = '💀 Čas vypršel! 💀';
+        odpocetEl.textContent = '💀 Čas vypršel! 💀';
+        odpocetEl.onclick = () => spustOslavu();
         document.getElementById('odpocet-detail').textContent = '';
         document.getElementById('odpocet-bar').style.width = '100%';
         return;
       }
+    // Funkce pro oslavu po doběhnutí časomíry
+    function spustOslavu() {
+      // Rozházet emoji 🎉
+      for (let i = 0; i < 40; i++) {
+        const em = document.createElement('span');
+        em.textContent = '🎉';
+        em.style.position = 'fixed';
+        em.style.left = Math.random() * 100 + 'vw';
+        em.style.top = Math.random() * 100 + 'vh';
+        em.style.fontSize = (Math.random() * 1.5 + 1.2) + 'em';
+        em.style.pointerEvents = 'none';
+        em.style.zIndex = 9999;
+        em.style.transition = 'transform 1.2s cubic-bezier(.2,1.8,.4,1), opacity 1.2s';
+        document.body.appendChild(em);
+        setTimeout(() => {
+          em.style.transform = `translateY(${(Math.random()-0.5)*200}px) scale(${Math.random()*1.5+0.7}) rotate(${Math.random()*360}deg)`;
+          em.style.opacity = 0;
+        }, 50);
+        setTimeout(() => em.remove(), 1600);
+      }
+      // Skákající text "Gratulujeme!"
+      if (!document.getElementById('gratulace')) {
+        const grat = document.createElement('div');
+        grat.id = 'gratulace';
+        grat.textContent = 'Gratulujeme!';
+        grat.style.position = 'fixed';
+        grat.style.left = '50%';
+        grat.style.top = '30%';
+        grat.style.transform = 'translate(-50%, -50%)';
+        grat.style.fontSize = '3em';
+        grat.style.fontWeight = 'bold';
+        grat.style.color = '#ffb700';
+        grat.style.textShadow = '0 2px 12px #222, 0 0 40px #fff';
+        grat.style.zIndex = 10000;
+        grat.style.animation = 'skakani 1.2s cubic-bezier(.2,1.8,.4,1) infinite alternate';
+        document.body.appendChild(grat);
+        setTimeout(() => grat.remove(), 4000);
+      }
+    }
+    // Skákací animace
+    const style = document.createElement('style');
+    style.textContent = `@keyframes skakani { 0%{transform:translate(-50%,-50%) scale(1);} 40%{transform:translate(-50%,-70%) scale(1.15);} 100%{transform:translate(-50%,-50%) scale(1);} }`;
+    document.head.appendChild(style);
       const d = Math.floor(diff / (1000*60*60*24));
       diff -= d * 1000*60*60*24;
       const h = Math.floor(diff / (1000*60*60));
