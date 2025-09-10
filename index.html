@@ -338,6 +338,9 @@
             if (ucitel && ucitel.toLowerCase() === 'zajac') {
               ucitelHtml = `<span class="zajac-ucitel" style="cursor:pointer;">${ucitel}</span>`;
             }
+            if (ucitel && ucitel.toLowerCase() === 'zelený') {
+              ucitelHtml = `<span class="zeleny-ucitel" style="cursor:pointer;">${ucitel}</span>`;
+            }
             let mistnost = '';
             if (item.classroom && item.classroom !== '') {
               mistnost = item.classroom;
@@ -410,6 +413,35 @@
                   em.style.opacity = 0;
                 }, 30);
                 setTimeout(() => em.remove(), 1200);
+              });
+            }
+            // Kliknutí na Zelený = zelený režim
+            const zelenyEl = tr.querySelector('.zeleny-ucitel');
+            if (zelenyEl) {
+              zelenyEl.addEventListener('click', function() {
+                document.body.style.background = '#0e2e0e';
+                document.body.style.color = '#b6ffb6';
+                document.querySelector('table').style.background = 'linear-gradient(120deg, #1e3d1e 80%, #2a4d2a 100%)';
+                document.querySelectorAll('th').forEach(th => {
+                  th.style.background = 'linear-gradient(90deg, #00ff88 60%, #00ff44 100%)';
+                  th.style.color = '#0e2e0e';
+                });
+                document.querySelectorAll('td').forEach(td => {
+                  td.style.color = '#b6ffb6';
+                });
+                document.querySelectorAll('.controls button').forEach(btn => {
+                  btn.style.background = '#1e3d1e';
+                  btn.style.color = '#00ff88';
+                  btn.style.border = '1px solid #00ff88';
+                });
+                document.getElementById('odpocet').style.color = '#00ff88';
+                document.getElementById('odpocet-detail').style.color = '#b6ffb6';
+                document.getElementById('odpocet-bar-wrap').style.background = '#1e3d1e';
+                document.getElementById('odpocet-bar').style.background = '#00ff88';
+                if (document.getElementById('zajac-counter')) {
+                  document.getElementById('zajac-counter').style.background = '#1e3d1e';
+                  document.getElementById('zajac-counter').style.color = '#00ff88';
+                }
               });
             }
             // Zvýraznění dneška v tabulce
