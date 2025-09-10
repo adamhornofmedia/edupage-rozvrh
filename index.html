@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-          if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7">Žádné hodiny</td></tr>`;
-          } else {
-            const now = new Date();
-            filtered.forEach(item => {
-              const den = item.date ? formatDen(item.date) : '';
-              let hodina = item.uniperiod || '';
-              if (item.durationperiods && Number(item.durationperiods) > 1 && item.uniperiod) {
-                const start = Number(item.uniperiod);
-                const end = start + Number(item.durationperiods) - 1;
-                hodina = `${start}–${end}`;
-              }
-              const zacatek = item.starttime || '';
-              const konec = item.endtime || '';
-              const predmet = item.subject || item.subjectid || (item.name || '');
-              let ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
-              let ucitelHtml = ucitel;
-              if (ucitel && ucitel.toLowerCase() === 'zajac') {
+  <meta charset="UTF-8">
+  <title>Rozvrh 4.g SSPVC</title>
+  <meta name="theme-color" content="#222" />
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #181c20;
+      color: #e0eafc;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    h1 {
+      text-align: center;
+      color: #00bfff;
+      margin-top: 40px;
+      font-size: 2.5em;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #222;
+    }
+    table {
+      width: 100%;
+              if (ucitel.toLowerCase() === 'zajac') {
                 ucitelHtml = `<span class="zajac-ucitel" style="cursor:pointer;">${ucitel}</span>`;
-              }
-              let mistnost = '';
-              if (item.classroom && item.classroom !== '') {
-                mistnost = item.classroom;
-              } else if (item.classroomids && item.classroomids.length) {
-                mistnost = item.classroomids.join(', ');
-              } else {
-                mistnost = (item.classroomids && item.classroomids.length === 0) ? '⁉️' : '';
-              }
-
-              // Zvýraznění aktuální hodiny
-              let highlight = '';
-              if (item.date && zacatek && konec) {
-                const start = new Date(item.date + 'T' + zacatek);
-                const end = new Date(item.date + 'T' + konec);
-                if (now >= start && now <= end && item.date === getTodayDate()) {
-                  highlight = ' style="background:#ffe066; color:#222;"';
-                }
-              }
-
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td>${den}</td>
-                <td>${hodina}</td>
-                <td>${zacatek}</td>
-                <td>${konec}</td>
-                <td>${predmet}</td>
-                <td>${ucitelHtml}</td>
-                <td>${mistnost}</td>
-              `;
-              // Kliknutí na Zajac = vyskočí emoji zajíce
-              const zajacEl = tr.querySelector('.zajac-ucitel');
-              if (zajacEl) {
-                zajacEl.addEventListener('click', function(e) {
-                  const em = document.createElement('span');
-                  em.textContent = '🐰';
-                  em.style.position = 'fixed';
-                  em.style.left = (e.clientX - 10) + 'px';
-                  em.style.top = (e.clientY - 10) + 'px';
-                  em.style.fontSize = '2.2em';
-                  em.style.pointerEvents = 'none';
-                  em.style.zIndex = 9999;
-                  em.style.transition = 'transform 1.1s cubic-bezier(.2,1.8,.4,1), opacity 1.1s';
-                  document.body.appendChild(em);
-                  setTimeout(() => {
-                    em.style.transform = `translateY(-120px) scale(1.3) rotate(${Math.random()*40-20}deg)`;
-                    em.style.opacity = 0;
-                  }, 30);
-                  setTimeout(() => em.remove(), 1200);
-                });
-              }
-              if (highlight) tr.setAttribute('style', 'background:#ffe066; color:#222;');
-              tbody.appendChild(tr);
-            });
-          }
+      background: #23272b;
+      margin-top: 30px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 32px #222;
+      animation: fadeIn 0.7s;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 1.15em;
+      transition: background 0.2s;
+    }
+    th {
+      background: #00bfff;
+      color: #181c20;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border: none;
+    }
+    tr:nth-child(even) {
+      background: #202328;
+    }
+    tr:hover td {
+      background: #222c38;
+    }
+    .error {
+      color: #d8000c;
+      background: #ffd2d2;
+      border: 1px solid #d8000c;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: center;
+      font-size: 1.1em;
+      display: none;
+      box-shadow: 0 2px 8px #222;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
     .mode-toggle {
       background: #23272b;
