@@ -27,48 +27,60 @@
       text-shadow: 0 2px 8px #222;
     }
     table {
-      width: 100%;
-              if (ucitel.toLowerCase() === 'zajac') {
-                ucitelHtml = `<span class="zajac-ucitel" style="cursor:pointer;">${ucitel}</span>`;
-      background: #23272b;
-      margin-top: 30px;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 6px 32px #222;
-      animation: fadeIn 0.7s;
+  width: 100%;
+  max-width: 950px;
+  background: linear-gradient(120deg, #23272b 80%, #2a2d3a 100%);
+  margin-top: 32px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 8px 36px #111b 0px 2px 16px #00bfff44;
+  animation: fadeIn 0.7s;
+  border-collapse: separate;
+  border-spacing: 0;
     }
     th, td {
-      border: 1px solid #333;
-      padding: 14px 10px;
-      text-align: center;
-      font-size: 1.15em;
-      transition: background 0.2s;
+  border: none;
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 1.13em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
     }
     th {
-      background: #00bfff;
-      color: #181c20;
-      font-weight: 600;
-      letter-spacing: 1px;
-      border: none;
+  background: linear-gradient(90deg, #00bfff 60%, #00eaff 100%);
+  color: #181c20;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  border: none;
+  font-size: 1.18em;
+  text-shadow: 0 1px 8px #fff4;
     }
     tr:nth-child(even) {
-      background: #202328;
+  background: #23272b;
     }
     tr:hover td {
-      background: #222c38;
+  background: #1a2333;
+  color: #00eaff;
+  box-shadow: 0 2px 12px #00bfff33;
     }
     .error {
-      color: #d8000c;
-      background: #ffd2d2;
-      border: 1px solid #d8000c;
-      border-radius: 8px;
-      padding: 12px;
-      margin: 20px auto;
-      max-width: 400px;
-      text-align: center;
-      font-size: 1.1em;
-      display: none;
-      box-shadow: 0 2px 8px #222;
+  color: #d8000c;
+  background: #ffd2d2;
+  border: 1px solid #d8000c;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 22px auto;
+  max-width: 420px;
+  text-align: center;
+  font-size: 1.13em;
+  display: none;
+  box-shadow: 0 2px 8px #222;
+      /* Zvýraznění dneška */
+    }
+    tr.today-row td {
+      background: #00bfff33 !important;
+      color: #fff !important;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #00bfff22;
     }
     .controls {
       margin-top: 20px;
@@ -323,8 +335,8 @@
             const predmet = item.subject || item.subjectid || (item.name || '');
             let ucitel = item.teacher || ((item.teacherids && item.teacherids.length) ? item.teacherids.join(', ') : '');
             let ucitelHtml = ucitel;
-            if (ucitel.toLowerCase() === 'zajac') {
-              ucitelHtml = `<span class="zajac-ucitel" style="cursor:pointer; color:#ffb700; text-shadow:0 1px 6px #222;">${ucitel}</span>`;
+            if (ucitel && ucitel.toLowerCase() === 'zajac') {
+              ucitelHtml = `<span class="zajac-ucitel" style="cursor:pointer;">${ucitel}</span>`;
             }
             let mistnost = '';
             if (item.classroom && item.classroom !== '') {
@@ -355,10 +367,34 @@
               <td>${ucitelHtml}</td>
               <td>${mistnost}</td>
             `;
-            // Kliknutí na Zajac = vyskočí emoji zajíce
+            // Kliknutí na Zajac = vyskočí emoji zajíce a counter (globální, v pravém horním rohu)
             const zajacEl = tr.querySelector('.zajac-ucitel');
             if (zajacEl) {
               zajacEl.addEventListener('click', function(e) {
+                if (!window.zajacCounter) window.zajacCounter = 0;
+                window.zajacCounter++;
+                if (!document.getElementById('zajac-counter')) {
+                  const counter = document.createElement('div');
+                  counter.id = 'zajac-counter';
+                  counter.style.position = 'fixed';
+                  counter.style.top = '22px';
+                  counter.style.right = '32px';
+                  counter.style.background = '#23272bcc';
+                  counter.style.color = '#fff';
+                  counter.style.fontSize = '1.25em';
+                  counter.style.padding = '8px 18px';
+                  counter.style.borderRadius = '14px';
+                  counter.style.boxShadow = '0 2px 12px #222';
+                  counter.style.zIndex = 10001;
+                  counter.style.userSelect = 'none';
+                  counter.style.letterSpacing = '1px';
+                  counter.style.fontWeight = 'bold';
+                  counter.textContent = `🐰: ${window.zajacCounter}`;
+                  document.body.appendChild(counter);
+                } else {
+                  document.getElementById('zajac-counter').textContent = `🐰: ${window.zajacCounter}`;
+                }
+                // Emoji animace
                 const em = document.createElement('span');
                 em.textContent = '🐰';
                 em.style.position = 'fixed';
@@ -375,6 +411,10 @@
                 }, 30);
                 setTimeout(() => em.remove(), 1200);
               });
+            }
+            // Zvýraznění dneška v tabulce
+            if (item.date === getTodayDate()) {
+              tr.classList.add('today-row');
             }
             if (highlight) tr.setAttribute('style', 'background:#ffe066; color:#222;');
             tbody.appendChild(tr);
