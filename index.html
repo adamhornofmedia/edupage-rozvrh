@@ -119,7 +119,16 @@
   </style>
 </head>
 <body>
-  <h1>Rozvrh třídy 4.g</h1>
+  <div style="margin-top:32px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+    <h1 id="nazev-tridy">Rozvrh třídy 4.g</h1>
+    <div style="margin-bottom:8px;">
+      <label for="trida-select" style="font-size:1.1em; color:#00bfff; margin-right:8px;">Třída:</label>
+      <select id="trida-select" style="font-size:1.1em; padding:4px 12px; border-radius:8px; border:1px solid #00bfff; background:#23272b; color:#00bfff;">
+        <option value="-30">4.g</option>
+        <option value="-49">1.G</option>
+      </select>
+    </div>
+  </div>
   <div class="controls">
     <button id="btn-prev">← Předchozí týden</button>
     <span id="tyden-label" style="font-size:1.1em; margin:0 12px; color:#00bfff;"></span>
@@ -289,8 +298,11 @@
       const {monday, sunday} = getWeekDates(currentWeek);
       const datefrom = monday.toISOString().slice(0,10);
       const dateto = sunday.toISOString().slice(0,10);
-      const id = '-30'; // staticky pro 4.g
-      const url = `/api/rozvrh?year=${year}&datefrom=${datefrom}&dateto=${dateto}&id=${id}`;
+  const id = document.getElementById('trida-select')?.value || '-30';
+  const url = `/api/rozvrh?year=${year}&datefrom=${datefrom}&dateto=${dateto}&id=${id}`;
+  // Změna nadpisu podle třídy
+  const nazev = id === '-49' ? 'Rozvrh třídy 1.G' : 'Rozvrh třídy 4.g';
+  document.getElementById('nazev-tridy').textContent = nazev;
       document.getElementById('loading').style.display = 'block';
       updateWeekLabel();
       try {
@@ -483,6 +495,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('trida-select').onchange = () => nactiRozvrh();
   setInterval(updateOdpocet, 1000);
   updateOdpocet();
       document.getElementById('btn-prev').onclick = () => changeWeek(-1);
