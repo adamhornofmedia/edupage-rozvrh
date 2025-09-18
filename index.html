@@ -514,9 +514,9 @@
       let found = false;
       for (let i = 0; i < hodiny.length; i++) {
         if (minuty >= hodiny[i].zacatek && minuty < hodiny[i].konec) {
-          const zbyva = hodiny[i].konec - minuty - 1;
-          const sekundy = 59 - now.getSeconds();
-          const min = Math.floor(zbyva);
+          const zbyvaCelkem = (hodiny[i].konec * 60) - (now.getHours() * 60 + now.getMinutes()) * 60 - now.getSeconds();
+          const min = Math.floor(zbyvaCelkem / 60);
+          const sekundy = zbyvaCelkem % 60;
           text = `Do konce ${i+1}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
           found = true;
           break;
