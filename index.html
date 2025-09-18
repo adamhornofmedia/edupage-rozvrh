@@ -130,6 +130,7 @@
     </div>
   </div>
   <div class="controls">
+    <div id="odpocet-hodiny" style="font-size:1.2em; color:#ff9800; margin-bottom:10px; text-align:center;"></div>
     <button id="btn-prev">← Předchozí týden</button>
     <span id="tyden-label" style="font-size:1.1em; margin:0 12px; color:#00bfff;"></span>
     <button id="btn-next">Další týden →</button>
@@ -494,10 +495,41 @@
       nactiRozvrh();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('trida-select').onchange = () => nactiRozvrh();
-  setInterval(updateOdpocet, 1000);
-  updateOdpocet();
+    // Odpočet do konce hodiny
+    function updateOdpocet() {
+      // Definice hodin (začátek a konec v minutách od půlnoci)
+      const hodiny = [
+        { zacatek: 8*60, konec: 8*60+45 },
+        { zacatek: 8*60+55, konec: 9*60+40 },
+        { zacatek: 10*60, konec: 10*60+45 },
+        { zacatek: 10*60+55, konec: 11*60+40 },
+        { zacatek: 11*60+50, konec: 12*60+35 },
+        { zacatek: 12*60+45, konec: 13*60+30 },
+        { zacatek: 13*60+40, konec: 14*60+25 },
+        { zacatek: 14*60+35, konec: 15*60+20 }
+      ];
+      const now = new Date();
+      const minuty = now.getHours()*60 + now.getMinutes();
+      let text = '';
+      let found = false;
+      for (let i = 0; i < hodiny.length; i++) {
+        if (minuty >= hodiny[i].zacatek && minuty < hodiny[i].konec) {
+          const zbyva = hodiny[i].konec - minuty - 1;
+          const sekundy = 59 - now.getSeconds();
+          const min = Math.floor(zbyva);
+          text = `Do konce ${i+1}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        text = 'Mimo vyučování';
+      }
+      document.getElementById('odpocet-hodiny').textContent = text;
+    }
+    document.getElementById('trida-select').onchange = () => nactiRozvrh();
+    setInterval(updateOdpocet, 1000);
+    updateOdpocet();
       document.getElementById('btn-prev').onclick = () => changeWeek(-1);
       document.getElementById('btn-next').onclick = () => changeWeek(1);
       document.getElementById('btn-today').onclick = () => {
@@ -516,9 +548,9 @@
       mode = 'today';
       document.getElementById('btn-today').style.display = 'none';
       document.getElementById('btn-week').style.display = 'inline-block';
-  nactiRozvrh();
-  // Automaticky spustit gratulaci s konfetami po načtení stránky až po načtení rozvrhu
-  setTimeout(spustOslavu, 400);
+      nactiRozvrh();
+      // Automaticky spustit gratulaci s konfetami po načtení stránky až po načtení rozvrhu
+      setTimeout(spustOslavu, 400);
     });
   </script>
 </body>
