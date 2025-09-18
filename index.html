@@ -513,16 +513,17 @@
       let text = '';
       let found = false;
       for (let i = 0; i < hodiny.length; i++) {
+        // Přesný výpočet: pokud je čas >= začátku a < konce, jsme v této hodině
         if (minuty >= hodiny[i].zacatek && minuty < hodiny[i].konec) {
-          // Oprava: číslo hodiny je i+1, ale pokud už je po začátku další hodiny, ukazujeme správně tu aktuální
-          const zbyvaCelkem = (hodiny[i].konec * 60) - (now.getHours() * 60 + now.getMinutes()) * 60 - now.getSeconds();
+          const konecHodiny = new Date(now);
+          konecHodiny.setHours(Math.floor(hodiny[i].konec / 60));
+          konecHodiny.setMinutes(hodiny[i].konec % 60);
+          konecHodiny.setSeconds(0);
+          konecHodiny.setMilliseconds(0);
+          const zbyvaCelkem = Math.floor((konecHodiny - now) / 1000);
           const min = Math.floor(zbyvaCelkem / 60);
           const sekundy = zbyvaCelkem % 60;
           let cisloHodiny = i+1;
-          // Pokud je méně než 0 minut do konce, jsme už v další hodině
-          if (zbyvaCelkem < 0 && i < hodiny.length-1 && minuty >= hodiny[i+1].zacatek) {
-            continue;
-          }
           text = `Do konce ${cisloHodiny}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
           found = true;
           break;
