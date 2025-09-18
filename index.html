@@ -496,7 +496,7 @@
     }
 
     // Odpočet do konce hodiny
-    function updateOdpocet() {
+    function updateOdpocetHodiny() {
       // Definice hodin (začátek a konec v minutách od půlnoci)
       const hodiny = [
         { zacatek: 8*60, konec: 8*60+45 },
@@ -528,8 +528,8 @@
       document.getElementById('odpocet-hodiny').textContent = text;
     }
     document.getElementById('trida-select').onchange = () => nactiRozvrh();
-    setInterval(updateOdpocet, 1000);
-    updateOdpocet();
+    setInterval(updateOdpocetHodiny, 1000);
+    updateOdpocetHodiny();
     document.getElementById('btn-prev').onclick = () => changeWeek(-1);
     document.getElementById('btn-next').onclick = () => changeWeek(1);
     document.getElementById('btn-today').onclick = () => {
