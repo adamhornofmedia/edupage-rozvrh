@@ -497,34 +497,40 @@
 
     // Odpočet do konce hodiny
     function updateOdpocetHodiny() {
-      // Definice hodin (začátek a konec v minutách od půlnoci)
-      const hodiny = [
-        { zacatek: 8*60, konec: 8*60+45 },
-        { zacatek: 8*60+55, konec: 9*60+40 },
-        { zacatek: 10*60, konec: 10*60+45 },
-        { zacatek: 10*60+55, konec: 11*60+40 },
-        { zacatek: 11*60+50, konec: 12*60+35 },
-        { zacatek: 12*60+45, konec: 13*60+30 },
-        { zacatek: 13*60+40, konec: 14*60+25 },
-        { zacatek: 14*60+35, konec: 15*60+20 }
-      ];
+      // Zkusit najít aktuální hodinu podle rozvrhu (dnešní den)
+      const tbody = document.querySelector('#rozvrh tbody');
+      const rows = tbody ? Array.from(tbody.querySelectorAll('tr')) : [];
       const now = new Date();
-      const minuty = now.getHours()*60 + now.getMinutes();
-      let text = '';
       let found = false;
-      for (let i = 0; i < hodiny.length; i++) {
-        // Přesný výpočet: pokud je čas >= začátku a < konce, jsme v této hodině
-        if (minuty >= hodiny[i].zacatek && minuty < hodiny[i].konec) {
-          const konecHodiny = new Date(now);
-          konecHodiny.setHours(Math.floor(hodiny[i].konec / 60));
-          konecHodiny.setMinutes(hodiny[i].konec % 60);
-          konecHodiny.setSeconds(0);
-          konecHodiny.setMilliseconds(0);
-          const zbyvaCelkem = Math.floor((konecHodiny - now) / 1000);
+      let text = '';
+      for (let i = 0; i < rows.length; i++) {
+        const tds = rows[i].querySelectorAll('td');
+        if (tds.length < 4) continue;
+        const den = tds[0].textContent.trim();
+        const zacatek = tds[2].textContent.trim();
+        const konec = tds[3].textContent.trim();
+        if (!zacatek || !konec) continue;
+        // Porovnat pouze dnešní den
+        const dnes = now.toLocaleDateString('cs-CZ', { weekday: 'short' }).toLowerCase();
+        if (!den.toLowerCase().startsWith(dnes)) continue;
+        // Sestavit Date pro začátek a konec
+        const start = new Date(now);
+        const [h1, m1] = zacatek.split(':');
+        start.setHours(Number(h1));
+        start.setMinutes(Number(m1));
+        start.setSeconds(0);
+        start.setMilliseconds(0);
+        const end = new Date(now);
+        const [h2, m2] = konec.split(':');
+        end.setHours(Number(h2));
+        end.setMinutes(Number(m2));
+        end.setSeconds(0);
+        end.setMilliseconds(0);
+        if (now >= start && now < end) {
+          const zbyvaCelkem = Math.floor((end - now) / 1000);
           const min = Math.floor(zbyvaCelkem / 60);
           const sekundy = zbyvaCelkem % 60;
-          let cisloHodiny = i+1;
-          text = `Do konce ${cisloHodiny}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
+          text = `Do konce hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
           found = true;
           break;
         }
