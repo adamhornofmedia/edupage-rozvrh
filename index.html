@@ -530,28 +530,27 @@
     document.getElementById('trida-select').onchange = () => nactiRozvrh();
     setInterval(updateOdpocet, 1000);
     updateOdpocet();
-      document.getElementById('btn-prev').onclick = () => changeWeek(-1);
-      document.getElementById('btn-next').onclick = () => changeWeek(1);
-      document.getElementById('btn-today').onclick = () => {
-        mode = 'today';
-        document.getElementById('btn-today').style.display = 'none';
-        document.getElementById('btn-week').style.display = 'inline-block';
-        nactiRozvrh();
-      };
-      document.getElementById('btn-week').onclick = () => {
-        mode = 'week';
-        document.getElementById('btn-week').style.display = 'none';
-        document.getElementById('btn-today').style.display = 'inline-block';
-        nactiRozvrh();
-      };
-      // Defaultně režim dnešek
+    document.getElementById('btn-prev').onclick = () => changeWeek(-1);
+    document.getElementById('btn-next').onclick = () => changeWeek(1);
+    document.getElementById('btn-today').onclick = () => {
       mode = 'today';
       document.getElementById('btn-today').style.display = 'none';
       document.getElementById('btn-week').style.display = 'inline-block';
       nactiRozvrh();
-      // Automaticky spustit gratulaci s konfetami po načtení stránky až po načtení rozvrhu
-      setTimeout(spustOslavu, 400);
-    });
+    };
+    document.getElementById('btn-week').onclick = () => {
+      mode = 'week';
+      document.getElementById('btn-week').style.display = 'none';
+      document.getElementById('btn-today').style.display = 'inline-block';
+      nactiRozvrh();
+    };
+    // Defaultně režim dnešek
+    mode = 'today';
+    document.getElementById('btn-today').style.display = 'none';
+    document.getElementById('btn-week').style.display = 'inline-block';
+    nactiRozvrh();
+    // Automaticky spustit gratulaci s konfetami po načtení stránky až po načtení rozvrhu
+    setTimeout(spustOslavu, 400);
   </script>
 </body>
 </html>
