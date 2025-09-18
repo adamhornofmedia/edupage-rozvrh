@@ -514,10 +514,16 @@
       let found = false;
       for (let i = 0; i < hodiny.length; i++) {
         if (minuty >= hodiny[i].zacatek && minuty < hodiny[i].konec) {
+          // Oprava: číslo hodiny je i+1, ale pokud už je po začátku další hodiny, ukazujeme správně tu aktuální
           const zbyvaCelkem = (hodiny[i].konec * 60) - (now.getHours() * 60 + now.getMinutes()) * 60 - now.getSeconds();
           const min = Math.floor(zbyvaCelkem / 60);
           const sekundy = zbyvaCelkem % 60;
-          text = `Do konce ${i+1}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
+          let cisloHodiny = i+1;
+          // Pokud je méně než 0 minut do konce, jsme už v další hodině
+          if (zbyvaCelkem < 0 && i < hodiny.length-1 && minuty >= hodiny[i+1].zacatek) {
+            continue;
+          }
+          text = `Do konce ${cisloHodiny}. hodiny zbývá ${min > 0 ? min+' min ' : ''}${sekundy} s`;
           found = true;
           break;
         }
